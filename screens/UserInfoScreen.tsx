@@ -5,7 +5,6 @@ import { Keyboard, Platform, View } from "react-native";
 
 import {
   mainBackgroundColor,
-  mainOrange,
   textDark,
   textDarkLighter,
 } from "../constants/StyleColors";
@@ -65,8 +64,8 @@ export default function UserInfoScreen({ onPress }: { onPress: Function }) {
   let [email, setEmail] = React.useState("");
   let [phoneNumber, setPhoneNumber] = React.useState("");
 
-  let emailInput = React.useRef(null);
-  let phoneInput = React.useRef(null);
+  let emailInput = React.useRef<TextInput>(null);
+  let phoneInput = React.useRef<TextInput>(null);
 
   return (
     <BaseContainer behavior={Platform.OS === "ios" ? "padding" : "height"}>

@@ -24,16 +24,24 @@ const TitleText = styled.Text`
   margin-left: 15px;
   margin-bottom: 10px;
 `;
-export default function Header({ title }: { title: String }) {
+export default function Header({
+  title,
+  showArrow = true,
+}: {
+  title: String;
+  showArrow?: boolean;
+}) {
   const navigation = useNavigation();
   return (
     <BaseContainer>
       <TitleContainer>
-        <TouchableOpacity
-          onPress={() => navigation.dispatch(CommonActions.goBack())}
-        >
-          <Ionicons name="chevron-back-outline" size={35} color="white" />
-        </TouchableOpacity>
+        {showArrow && (
+          <TouchableOpacity
+            onPress={() => navigation.dispatch(CommonActions.goBack())}
+          >
+            <Ionicons name="chevron-back-outline" size={35} color="white" />
+          </TouchableOpacity>
+        )}
         <TitleText>{title}</TitleText>
       </TitleContainer>
     </BaseContainer>

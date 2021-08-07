@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { getMyPets } from "../api/PetStore";
+import Header from "../components/Header";
 
 const BaseContainer = styled.View`
   height: 100%;
@@ -27,6 +28,7 @@ const UserInfoContainer = styled.View`
   border-top-right-radius: 35px;
   border-bottom-left-radius: 35px;
   border-bottom-right-radius: 15px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 `;
 const IconContainer = styled.View`
   width: 32px;
@@ -61,6 +63,7 @@ const MyPetsList = styled.View`
   border-top-right-radius: 35px;
   border-bottom-left-radius: 35px;
   border-bottom-right-radius: 15px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 `;
 const MyPetsHeaderContainer = styled.View`
   flex-direction: row;
@@ -104,7 +107,7 @@ const LogoutButton = styled.TouchableOpacity`
   width: 99px;
   height: 57px;
   border-radius: 30px;
-  bottom: 20px;
+  bottom: 120px;
   right: 20px;
   flex-direction: row;
   align-items: center;
@@ -124,7 +127,7 @@ export default function MyProfileScreen({ user }: { user: User }) {
   const [myPets, setMyPets] = React.useState<null | Pet[]>(null);
   const navigation = useNavigation();
 
-  const renderIcon = (iconName) => {
+  const renderIcon = (iconName: any) => {
     return (
       <IconContainer>
         <Ionicons name={iconName} size={20} color="white" />
@@ -132,10 +135,14 @@ export default function MyProfileScreen({ user }: { user: User }) {
     );
   };
   const fetchPets = async () => {
-    const result = await getMyPets(user).then((pets) => {
-      return pets;
-    });
-    setMyPets(result);
+    try {
+      const result = await getMyPets(user).then((pets) => {
+        return pets;
+      });
+      setMyPets(result);
+    } catch (error) {
+      throw new Error(error);
+    }
   };
 
   React.useEffect(() => {
@@ -143,57 +150,60 @@ export default function MyProfileScreen({ user }: { user: User }) {
   }, [user.pets]);
 
   return (
-    <BaseContainer>
-      <MyPetsList>
-        <MyPetsHeaderContainer>
-          <MyPetsHeader>Mín Dýr</MyPetsHeader>
-          <AddPetButton onPress={() => navigation.navigate("AddPetScreen")}>
-            <Ionicons name="add-outline" size={26} color="white" />
-          </AddPetButton>
-        </MyPetsHeaderContainer>
-        <MyPetsContainer horizontal={true}>
-          {myPets && myPets.length > 0
-            ? myPets.map((pet) => {
-                return (
-                  <MyPetContainer key={pet.id}>
-                    <MyPetName>{pet.name}</MyPetName>
-                  </MyPetContainer>
-                );
+    <>
+      <Header title={"Mín dýr"} showArrow={false} />
+      <BaseContainer>
+        <MyPetsList>
+          <MyPetsHeaderContainer>
+            <MyPetsHeader>Mín Dýr</MyPetsHeader>
+            <AddPetButton onPress={() => navigation.navigate("AddPetScreen")}>
+              <Ionicons name="add-outline" size={26} color="white" />
+            </AddPetButton>
+          </MyPetsHeaderContainer>
+          <MyPetsContainer horizontal={true}>
+            {myPets && myPets.length > 0
+              ? myPets.map((pet) => {
+                  return (
+                    <MyPetContainer key={pet.id}>
+                      <MyPetName>{pet.name}</MyPetName>
+                    </MyPetContainer>
+                  );
+                })
+              : null}
+          </MyPetsContainer>
+        </MyPetsList>
+        <UserInfoContainer>
+          <UserInfoHeader>Mínar Upplýsingar</UserInfoHeader>
+          <UserInfoRow>
+            {renderIcon("person-outline")}
+            <UserInfoText>{user.name}</UserInfoText>
+          </UserInfoRow>
+          {user.email ? (
+            <UserInfoRow>
+              {renderIcon("mail-outline")}
+              <UserInfoText>{user.email}</UserInfoText>
+            </UserInfoRow>
+          ) : null}
+          {user.phoneNumber ? (
+            <UserInfoRow>
+              {renderIcon("call-outline")}
+              <UserInfoText>{user.phoneNumber}</UserInfoText>
+            </UserInfoRow>
+          ) : null}
+        </UserInfoContainer>
+        <LogoutButton
+          onPress={() =>
+            firebase
+              .auth()
+              .signOut()
+              .then(() => {
+                console.log("logged out");
               })
-            : null}
-        </MyPetsContainer>
-      </MyPetsList>
-      <UserInfoContainer>
-        <UserInfoHeader>Mínar Upplýsingar</UserInfoHeader>
-        <UserInfoRow>
-          {renderIcon("person-outline")}
-          <UserInfoText>{user.name}</UserInfoText>
-        </UserInfoRow>
-        {user.email ? (
-          <UserInfoRow>
-            {renderIcon("mail-outline")}
-            <UserInfoText>{user.email}</UserInfoText>
-          </UserInfoRow>
-        ) : null}
-        {user.phoneNumber ? (
-          <UserInfoRow>
-            {renderIcon("call-outline")}
-            <UserInfoText>{user.phoneNumber}</UserInfoText>
-          </UserInfoRow>
-        ) : null}
-      </UserInfoContainer>
-      <LogoutButton
-        onPress={() =>
-          firebase
-            .auth()
-            .signOut()
-            .then(() => {
-              console.log("logged out");
-            })
-        }
-      >
-        <LogoutButtonText>Logout</LogoutButtonText>
-      </LogoutButton>
-    </BaseContainer>
+          }
+        >
+          <LogoutButtonText>Logout</LogoutButtonText>
+        </LogoutButton>
+      </BaseContainer>
+    </>
   );
 }
